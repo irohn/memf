@@ -66,4 +66,17 @@ sudo make uninstall-service
 sudo ./memf --list
 sudo ./memf --debug
 sudo ./memf --vendor 09da --product 55c6
+./memf --version
 ```
+
+## Releases
+
+GitHub Actions builds the project on pushes and pull requests.
+
+To publish a release, run the `Release` workflow manually from GitHub Actions. It starts at `v0.1.0`, then increments the selected semver component, commits `VERSION`, tags the release, and uploads Linux x86_64 and ARM64 tarballs containing:
+
+- `memf`
+- `systemd/memf.service`
+- `memf.conf.example`
+- `README.md`
+- `VERSION`

@@ -26,6 +26,10 @@
 #define DEVICE_PATH_LEN 256
 #define UINPUT_NAME "memf"
 
+#ifndef MEMF_VERSION
+#define MEMF_VERSION "0.0.0"
+#endif
+
 struct input_device {
     char path[DEVICE_PATH_LEN];
     char name[DEVICE_NAME_LEN];
@@ -55,6 +59,7 @@ static void usage(FILE *stream, const char *program) {
             "  -v, --vendor HEX        force USB/input vendor id\n"
             "  -p, --product HEX       force USB/input product id\n"
             "  -d, --debug             print selected devices\n"
+            "      --version           show version\n"
             "  -h, --help              show this help\n",
             program);
 }
@@ -457,6 +462,9 @@ int main(int argc, char **argv) {
             has_forced_product = true;
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(stdout, argv[0]);
+            return EXIT_SUCCESS;
+        } else if (strcmp(argv[i], "--version") == 0) {
+            printf("memf %s\n", MEMF_VERSION);
             return EXIT_SUCCESS;
         } else {
             usage(stderr, argv[0]);

@@ -2,6 +2,7 @@ CC ?= cc
 CFLAGS ?= -O2 -g
 CPPFLAGS ?=
 LDFLAGS ?=
+VERSION := $(shell cat VERSION)
 
 INSTALL_PATH ?= /usr/local/bin
 SYSTEMD_UNIT_DIR ?= /etc/systemd/system
@@ -16,7 +17,7 @@ all: build
 build: $(BINARY)
 
 $(BINARY): $(SRC)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -std=c11 -Wall -Wextra -Wpedantic -D_DEFAULT_SOURCE -o $@ $< $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -std=c11 -Wall -Wextra -Wpedantic -D_DEFAULT_SOURCE -DMEMF_VERSION=\"$(VERSION)\" -o $@ $< $(LDFLAGS)
 
 run: build
 	sudo ./$(BINARY)

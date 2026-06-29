@@ -1,0 +1,145 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version component to increment
+        required: true
+        default: minor
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate next version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          latest_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+
+          if [ -z "$latest_tag" ]; then
+            version="0.1.0"
+          else
+            current="${latest_tag#v}"
+            IFS=. read -r major minor patch <<< "$current"
+
+            case "${{ inputs.bump }}" in
+              major)
+                major=$((major + 1))
+                minor=0
+                patch=0
+                ;;
+              minor)
+                minor=$((minor + 1))
+                patch=0
+                ;;
+              patch)
+                patch=$((patch + 1))
+                ;;
+            esac
+
+            version="$major.$minor.$patch"
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Update version file
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="${{ steps.version.outputs.version }}"
+
+          printf '%s\n' "$version" > VERSION
+
+      - name: Build memf
+        run: make clean all
+
+      - name: Package x86_64 release artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="${{ steps.version.outputs.version }}"
+          package="memf-$version-linux-x86_64"
+
+          mkdir -p "$package/systemd"
+          cp memf "$package/"
+          cp memf.conf.example "$package/"
+          cp README.md "$package/"
+          cp VERSION "$package/"
+          cp systemd/memf.service "$package/systemd/"
+
+          tar -czf "$package.tar.gz" "$package"
+
+      - name: Install ARM64 cross compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Build ARM64 memf
+        run: make clean all CC=aarch64-linux-gnu-gcc
+
+      - name: Package ARM64 release artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="${{ steps.version.outputs.version }}"
+          package="memf-$version-linux-arm64"
+
+          mkdir -p "$package/systemd"
+          cp memf "$package/"
+          cp memf.conf.example "$package/"
+          cp README.md "$package/"
+          cp VERSION "$package/"
+          cp systemd/memf.service "$package/systemd/"
+
+          tar -czf "$package.tar.gz" "$package"
+
+      - name: Commit version and create tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${{ steps.version.outputs.tag }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet -- VERSION; then
+            git add VERSION
+            git commit -m "Release $tag"
+          fi
+
+          git tag "$tag"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "$tag"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: memf ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            memf-${{ steps.version.outputs.version }}-linux-x86_64.tar.gz
+            memf-${{ steps.version.outputs.version }}-linux-arm64.tar.gz
