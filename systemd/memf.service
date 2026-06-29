@@ -1,0 +1,17 @@
+[Unit]
+Description=Multi event mouse fix
+Documentation=man:systemd.service(5)
+Wants=systemd-udev-settle.service
+After=systemd-udev-settle.service local-fs.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/memf.conf
+ExecStart=/usr/local/bin/memf $MEMF_ARGS
+Restart=always
+RestartSec=2
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

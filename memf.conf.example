@@ -1,0 +1,3 @@
+# Extra arguments passed to memf by systemd.
+# Use `sudo memf --list` to find the vendor/product pair.
+MEMF_ARGS="--vendor 09da --product 55c6"

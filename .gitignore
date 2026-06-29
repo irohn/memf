@@ -1,0 +1,52 @@
+# Project binary
+/memf
+
+# Object files and libraries
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+*.la
+*.lo
+
+# Executables and debug symbols
+*.exe
+*.out
+*.app
+*.dSYM/
+*.gcda
+*.gcno
+*.gcov
+
+# Build directories
+build/
+dist/
+out/
+Debug/
+Release/
+
+# Make/CMake/autotools generated files
+*.d
+Makefile.in
+aclocal.m4
+autom4te.cache/
+configure
+config.log
+config.status
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
