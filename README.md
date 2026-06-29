@@ -78,5 +78,6 @@ To publish a release, run the `Release` workflow manually from GitHub Actions. I
 - `memf`
 - `systemd/memf.service`
 - `memf.conf.example`
+- `LICENSE`
 - `README.md`
 - `VERSION`
