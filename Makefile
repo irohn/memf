@@ -10,7 +10,7 @@ CONFIG_PATH ?= /etc/memf.conf
 BINARY := memf
 SRC := src/memf.c
 
-.PHONY: all build run install install-service uninstall-service clean
+.PHONY: all build run install uninstall install-service uninstall-service clean
 
 all: build
 
@@ -25,6 +25,9 @@ run: build
 install: build
 	install -d "$(INSTALL_PATH)"
 	install -m 0755 ./$(BINARY) "$(INSTALL_PATH)/$(BINARY)"
+
+uninstall:
+	rm -f "$(INSTALL_PATH)/$(BINARY)"
 
 install-service: install
 	install -d "$(SYSTEMD_UNIT_DIR)"

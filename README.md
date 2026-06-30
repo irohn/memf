@@ -34,6 +34,12 @@ Override the install directory with `INSTALL_PATH`:
 sudo make install INSTALL_PATH=/opt/bin
 ```
 
+Uninstall the binary:
+
+```sh
+sudo make uninstall
+```
+
 ## Systemd Service
 
 Install the binary, config, and service:
