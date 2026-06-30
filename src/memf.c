@@ -397,6 +397,11 @@ static int run_event_loop(struct input_device *devices, size_t device_count, int
         }
 
         for (size_t i = 0; i < poll_count; i++) {
+            if ((pollfds[i].revents & (POLLERR | POLLHUP | POLLNVAL)) != 0) {
+                fprintf(stderr, "input device disconnected or became unavailable\n");
+                return -1;
+            }
+
             if ((pollfds[i].revents & POLLIN) == 0) {
                 continue;
             }
